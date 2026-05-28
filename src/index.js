@@ -81,6 +81,7 @@ app.get("/", (req, res) => {
         { method: "GET", path: "/asset/:code/:issuer/holders",      description: "Paginated accounts holding an asset" },
         { method: "GET", path: "/asset/search?code=:code",          description: "Search assets by code across all issuers" },
         { method: "GET", path: "/utils/friendbot/:accountId",       description: "Fund a testnet account via Friendbot (testnet only)" },
+        { method: "GET", path: "/utils/validate-account?id=:id",    description: "Validate a Stellar public key format (no Horizon call)" },
         { method: "WS",  path: "/stream/ledgers",                  description: "Real-time stream of live Stellar ledger updates" },
       ],
       docs: "https://github.com/stellarkit-lab-devtools/stellarkit-api#readme",

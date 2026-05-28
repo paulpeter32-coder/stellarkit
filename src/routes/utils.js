@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 const { success } = require("../utils/response");
-const { validateAccountId } = require("../utils/validators");
+const { validateAccountId, publicKeyInvalidReason } = require("../utils/validators");
 
 const FRIENDBOT_URL = "https://friendbot.stellar.org";
 
@@ -63,6 +63,33 @@ router.get("/friendbot/:accountId", async (req, res, next) => {
     // Pass other errors to global handler
     next(err);
   }
+});
+
+/**
+ * GET /utils/validate-account?id=GAAZI4...
+ * Validates whether a string is a well-formed Stellar Ed25519 public key.
+ * No Horizon call is made — validation is purely local via the Stellar SDK.
+ *
+ * @query {string} id - The Stellar public key to validate.
+ *
+ * @returns {{ input, isValid, reason }}
+ *   isValid: true  → reason is null
+ *   isValid: false → reason explains the problem (wrong prefix / length /
+ *                    invalid characters / bad checksum)
+ *
+ * @example
+ * GET /utils/validate-account?id=GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ * → { "input": "GAAZI4...", "isValid": true, "reason": null }
+ *
+ * GET /utils/validate-account?id=XAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ * → { "input": "XAAZI4...", "isValid": false, "reason": "Wrong prefix: ..." }
+ */
+router.get("/validate-account", (req, res) => {
+  const input = req.query.id ?? "";
+  const reason = publicKeyInvalidReason(input);
+  const isValid = reason === null;
+
+  return res.json({ input, isValid, reason });
 });
 
 module.exports = router;

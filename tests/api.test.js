@@ -466,8 +466,56 @@ describe("StellarKit API", () => {
       expect(res.headers["content-encoding"]).toBe("gzip");
     });
   });
-  // ── Friendbot Tests ─────────────────────────────────────────────────────────
-  describe("GET /utils/friendbot/:accountId", () => {
+  // ── Validate Account Tests ──────────────────────────────────────────────────
+  describe("GET /utils/validate-account", () => {
+    const VALID_KEY = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN";
+
+    it("returns isValid: true and reason: null for a valid public key", async () => {
+      const res = await request(app).get(
+        `/utils/validate-account?id=${VALID_KEY}`
+      );
+      expect(res.statusCode).toBe(200);
+      expect(res.body.input).toBe(VALID_KEY);
+      expect(res.body.isValid).toBe(true);
+      expect(res.body.reason).toBeNull();
+    });
+
+    it("returns isValid: false with a wrong-prefix reason", async () => {
+      const wrongPrefix = "XAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN";
+      const res = await request(app).get(
+        `/utils/validate-account?id=${wrongPrefix}`
+      );
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isValid).toBe(false);
+      expect(res.body.reason).toMatch(/prefix/i);
+    });
+
+    it("returns isValid: false with a wrong-length reason for a too-short key", async () => {
+      const tooShort = "GAAZI4TCR3TY5OJHCTJC2A4QSY6";
+      const res = await request(app).get(
+        `/utils/validate-account?id=${tooShort}`
+      );
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isValid).toBe(false);
+      expect(res.body.reason).toMatch(/length/i);
+    });
+
+    it("returns isValid: false with an empty-input reason for an empty string", async () => {
+      const res = await request(app).get("/utils/validate-account?id=");
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isValid).toBe(false);
+      expect(res.body.reason).toMatch(/empty/i);
+    });
+
+    it("returns isValid: false when the id query param is omitted entirely", async () => {
+      const res = await request(app).get("/utils/validate-account");
+      expect(res.statusCode).toBe(200);
+      expect(res.body.isValid).toBe(false);
+      expect(res.body.reason).toMatch(/empty/i);
+    });
+  });
+
+  // ── Friendbot Tests ─────────────────────────────────────────────────────────  describe("GET /utils/friendbot/:accountId", () => {
     const VALID_KEY = "GBB67CMSCMGPROSFIVENXMRQ3KJWELDIUYITQI7YCKMSOPR2SNZB5NQ5";
 
     beforeEach(() => {
