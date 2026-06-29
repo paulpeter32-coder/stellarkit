@@ -515,7 +515,8 @@ describe("StellarKit API", () => {
     });
   });
 
-  // ── Friendbot Tests ─────────────────────────────────────────────────────────  describe("GET /utils/friendbot/:accountId", () => {
+  // ── Friendbot Tests ─────────────────────────────────────────────────────────
+  describe("GET /utils/friendbot/:accountId", () => {
     const VALID_KEY = "GBB67CMSCMGPROSFIVENXMRQ3KJWELDIUYITQI7YCKMSOPR2SNZB5NQ5";
 
     beforeEach(() => {
@@ -611,9 +612,10 @@ describe("StellarKit API", () => {
 
       await request(app).get(`/utils/friendbot/${VALID_KEY}`);
 
-      expect(axios.get).toHaveBeenCalledWith("https://friendbot.stellar.org", {
-        params: { addr: VALID_KEY },
-        timeout: 10000,
+        expect(axios.get).toHaveBeenCalledWith("https://friendbot.stellar.org", {
+          params: { addr: VALID_KEY },
+          timeout: 10000,
+        });
       });
     });
-  });});
+  });
